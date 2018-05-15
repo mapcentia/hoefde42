@@ -63,7 +63,7 @@ module.exports = {
 
 
     search: function (searchTerm) {
-        let url = 'http://rm.mapcentia.com/api/v2/elasticsearch/search/roenland_gl_fabrik/hoefde42/areas_join';
+        let url = 'https://rm.mapcentia.com/api/v2/elasticsearch/search/roenland_gl_fabrik/hoefde42/areas_join';
         let query = {
             "_source": {
                 "excludes": [
