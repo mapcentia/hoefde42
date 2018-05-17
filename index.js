@@ -4,10 +4,8 @@
  * @type {*|exports|module.exports}
  */
 var React = require('react');
-;
 
 var ReactDOM = require('react-dom');
-
 
 var cloud;
 
@@ -24,25 +22,6 @@ var config = require('../../../../config/config.js');
 var mainSearch;
 
 var items = {};
-
-
-class SearchItem extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        let liStyle = {
-            padding: '4px 16px'
-        };
-        return <a style={liStyle} id={this.props.searcher + ':' + this.props.value} href="#"
-                  className="list-group-item">
-            {this.props.value}
-        </a>;
-    }
-
-
-}
 
 module.exports = {
     set: function (o) {
