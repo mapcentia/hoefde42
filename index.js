@@ -35,8 +35,8 @@ module.exports = {
     init: function () {
         let me = this;
         mainSearch.registerSearcher({
-            key: 'Høfde 42',
-            obj: {'searcher': this, 'title': 'Høfde 42'}
+            key: 'Harboøre Tange',
+            obj: {'searcher': this, 'title': 'Harboøre Tange'}
         });
     },
 
@@ -73,7 +73,7 @@ module.exports = {
             }
 
 
-        }
+        };
 
         return new Promise(function (resolve, reject) {
             $.post(url, JSON.stringify(query), function (data) {
@@ -87,14 +87,33 @@ module.exports = {
         });
     },
 
-    handleSearch: function (searchTerm) {
-        console.log(searchTerm);
-
-
+    handleMouseOver: function (searchTerm, res) {
         return new Promise(function (resolve, reject) {
-
             let geom = items[searchTerm].geometry;
-            console.log(geom);
+            let layer = L.geoJson(geom, {
+                "color": "blue",
+                "weight": 1,
+                "opacity": 1,
+                "fillOpacity": 0.1,
+                "dashArray": '5,3'
+            });
+
+            layerGroup.clearLayers();
+            layerGroup.addLayer(layer).addTo(mapObj);
+            resolve();
+        });
+    },
+
+    handleMouseOut: function (searchTerm, res) {
+        return new Promise(function (resolve, reject) {
+            layerGroup.clearLayers();
+            resolve();
+        });
+    },
+
+    handleSearch: function (searchTerm) {
+        return new Promise(function (resolve, reject) {
+            let geom = items[searchTerm].geometry;
             let properties = items[searchTerm].properties;
             let layer = L.geoJson(geom, {
                 "color": "blue",
@@ -105,7 +124,6 @@ module.exports = {
             });
 
             layerGroup.clearLayers();
-            console.log(layer);
             layerGroup.addLayer(layer).addTo(mapObj);
             mapObj.fitBounds(layer.getBounds());
             let comp = <div>
