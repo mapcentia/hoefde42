@@ -9,7 +9,9 @@ var ReactDOM = require('react-dom');
 
 var cloud;
 
-var layerGroup = L.layerGroup();
+var layerGroupMouseOver = L.layerGroup();
+
+var layerGroupAll = L.layerGroup();
 
 var utils;
 
@@ -77,9 +79,19 @@ module.exports = {
 
         return new Promise(function (resolve, reject) {
             $.post(url, JSON.stringify(query), function (data) {
+                layerGroupAll.clearLayers();
                 let res = data.hits.hits.map((item) => {
-                    let it = item['_source']['properties'];
-                    items[it.gid] = item['_source'];
+                    let it = item._source.properties;
+                    items[it.gid] = item._source;
+                    let geom = item._source.geometry;
+                    let layer = L.geoJson(geom, {
+                        "color": "grey",
+                        "weight": 1,
+                        "opacity": 1,
+                        "fillOpacity": 0.1,
+                        "dashArray": '5,3'
+                    });
+                    layerGroupAll.addLayer(layer).addTo(mapObj);
                     return {'title': it.links, 'id': it.gid};
                 });
                 resolve(res);
@@ -98,20 +110,22 @@ module.exports = {
                 "dashArray": '5,3'
             });
 
-            layerGroup.clearLayers();
-            layerGroup.addLayer(layer).addTo(mapObj);
+            layerGroupMouseOver.clearLayers();
+            layerGroupMouseOver.addLayer(layer).addTo(mapObj);
             resolve();
         });
     },
 
     handleMouseOut: function (searchTerm, res) {
         return new Promise(function (resolve, reject) {
-            layerGroup.clearLayers();
+            layerGroupMouseOver.clearLayers();
             resolve();
         });
     },
 
     handleSearch: function (searchTerm) {
+        layerGroupAll.clearLayers();
+
         return new Promise(function (resolve, reject) {
             let geom = items[searchTerm].geometry;
             let properties = items[searchTerm].properties;
@@ -123,8 +137,8 @@ module.exports = {
                 "dashArray": '5,3'
             });
 
-            layerGroup.clearLayers();
-            layerGroup.addLayer(layer).addTo(mapObj);
+            layerGroupMouseOver.clearLayers();
+            layerGroupMouseOver.addLayer(layer).addTo(mapObj);
             mapObj.fitBounds(layer.getBounds());
             let comp = <div>
                 <ul className="list-group">
