@@ -51,13 +51,16 @@ module.exports = {
                     "properties.text"
                 ]
             },
-            "size": 100,
+            "size": 1000,
             "query": {
                 "bool": {
                     "should": [
                         {
                             "match": {
-                                "properties.text": searchTerm
+                                "properties.text": {
+                                    "query" : searchTerm,
+                                    "operator" : "and"
+                                }
                             }
                         },
                         {
