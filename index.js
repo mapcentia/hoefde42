@@ -5,8 +5,6 @@
  */
 var React = require('react');
 
-var ReactDOM = require('react-dom');
-
 var cloud;
 
 var layerGroupMouseOver = L.layerGroup();
@@ -19,9 +17,9 @@ var mapObj;
 
 var exId = "hoefde42Search";
 
-var config = require('../../../../config/config.js');
-
 var mainSearch;
+
+var conflictSearch;
 
 var items = {};
 
@@ -31,11 +29,10 @@ module.exports = {
         utils = o.utils;
         mapObj = cloud.get().map;
         mainSearch = o.extensions.vidisearch.index;
-
+        conflictSearch = o.extensions.conflictSearch.index;
     },
 
     init: function () {
-        let me = this;
         mainSearch.registerSearcher({
             key: 'Harboøre Tange',
             obj: {'searcher': this, 'title': 'Harboøre Tange'}
@@ -127,6 +124,7 @@ module.exports = {
     },
 
     handleSearch: function (searchTerm) {
+        conflictSearch.clearDrawing();
         layerGroupAll.clearLayers();
 
         return new Promise(function (resolve, reject) {
@@ -151,13 +149,37 @@ module.exports = {
                     </li>
                     <li className="list-group-item">Tags : <Tags items={properties.tags.split("|")}/></li>
                     <li className="list-group-item">Områder : <Tags items={properties.omraade.split("|")}/></li>
-
                 </ul>
+                <div><ConflictSearch /></div>
             </div>;
             resolve(comp);
         });
     }
 };
+
+class ConflictSearch extends React.Component {
+    makeSearch() {
+        // Activate Conflict
+        $('#main-tabs a[href="#conflict-content"]').tab('show');
+        // Switch on Conflict
+        let conflictSwitch = $("#conflict-btn");
+        if (!conflictSwitch.is(':checked')) {
+            conflictSwitch.trigger("click");
+        }
+        // Clear existing drawings
+        conflictSearch.clearDrawing();
+        // Add layer from Search
+        conflictSearch.addDrawing(layerGroupMouseOver._layers[Object.keys(layerGroupMouseOver._layers)[0]]);
+        // Run Conflict
+        conflictSearch.makeSearch("Fra Røland dl._fabrik");
+    }
+
+    render() {
+        return (
+            <button className="btn btn-raised" onClick={this.makeSearch}>Konfliktsøgning <i className="material-icons">arrow_forward</i></button>
+        );
+    }
+}
 
 class Tags extends React.Component {
     render() {
