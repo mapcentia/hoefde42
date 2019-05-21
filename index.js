@@ -51,31 +51,46 @@ module.exports = {
             "size": 1000,
             "query": {
                 "bool": {
-                    "should": [
-                        {
-                            "match": {
-                                "properties.text": {
-                                    "query" : searchTerm,
-                                    "operator" : "and"
-                                }
-                            }
-                        },
-                        {
-                            "match": {
-                                "properties.tags": searchTerm
-                            }
-                        },
-                        {
-                            "match": {
-                                "properties.omraade": searchTerm
-                            }
-                        }
-                    ]
+                    "must": []
                 }
             }
 
-
         };
+
+        if (document.getElementById('search_tags').checked) {
+            query.query.bool.must.push({
+                "match": {
+                    "properties.tags": {
+                        "query": searchTerm,
+                        "operator": "and"
+                    }
+                }
+            })
+        }
+        if (document.getElementById('search_text').checked) {
+            query.query.bool.must.push({
+                "match": {
+                    "properties.text": {
+                        "query": searchTerm,
+                        "operator": "and"
+                    }
+                }
+            })
+        }
+        if (document.getElementById('search_omraade').checked) {
+            query.query.bool.must.push({
+                "match": {
+                    "properties.omraade": {
+                        "query": searchTerm,
+                        "operator": "and"
+                    }
+                }
+            })
+        }
+        if (query.query.bool.must.length === 0){
+            alert("Tjek venligst mindst en søgemetode til.");
+            return false;
+        }
 
         return new Promise(function (resolve, reject) {
             $.post(url, JSON.stringify(query), function (data) {
@@ -150,7 +165,7 @@ module.exports = {
                     <li className="list-group-item">Tags : <Tags items={properties.tags.split("|")}/></li>
                     <li className="list-group-item">Områder : <Tags items={properties.omraade.split("|")}/></li>
                 </ul>
-                <div><ConflictSearch /></div>
+                <div><ConflictSearch/></div>
             </div>;
             resolve(comp);
         });
@@ -160,12 +175,9 @@ module.exports = {
 class ConflictSearch extends React.Component {
     makeSearch() {
         // Activate Conflict
-        $('#main-tabs a[href="#conflict-content"]').tab('show');
+        $('#main-tabs a[href="#conflict-content"]').trigger('click');
         // Switch on Conflict
-        let conflictSwitch = $("#conflict-btn");
-        if (!conflictSwitch.is(':checked')) {
-            conflictSwitch.trigger("click");
-        }
+
         // Clear existing drawings
         conflictSearch.clearDrawing();
         // Add layer from Search
@@ -176,7 +188,8 @@ class ConflictSearch extends React.Component {
 
     render() {
         return (
-            <button className="btn btn-raised" onClick={this.makeSearch}>Konfliktsøgning <i className="material-icons">arrow_forward</i></button>
+            <button className="btn btn-raised" onClick={this.makeSearch}>Konfliktsøgning <i className="material-icons">arrow_forward</i>
+            </button>
         );
     }
 }
