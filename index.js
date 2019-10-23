@@ -23,6 +23,8 @@ var conflictSearch;
 
 var items = {};
 
+var currentSearchId;
+
 module.exports = {
     set: function (o) {
         cloud = o.cloud;
@@ -40,7 +42,7 @@ module.exports = {
     },
 
 
-    search: function (searchTerm) {
+    search: function (searchTerm, e) {
         let url = 'https://rm.mapcentia.com/api/v2/elasticsearch/search/roenland_gl_fabrik/hoefde42/areas_join';
         let query = {
             "_source": {
@@ -56,8 +58,8 @@ module.exports = {
             }
 
         };
-
-        if (document.getElementById('search_tags').checked) {
+        currentSearchId = e ? e.target.id : currentSearchId;
+        if (currentSearchId === "tag-search") {
             query.query.bool.must.push({
                 "match": {
                     "properties.tags": {
@@ -67,7 +69,7 @@ module.exports = {
                 }
             })
         }
-        if (document.getElementById('search_text').checked) {
+        if (currentSearchId === "text-search" ) {
             query.query.bool.must.push({
                 "match": {
                     "properties.text": {
@@ -77,7 +79,7 @@ module.exports = {
                 }
             })
         }
-        if (document.getElementById('search_omraade').checked) {
+        if (currentSearchId === "omraade-search") {
             query.query.bool.must.push({
                 "match": {
                     "properties.omraade": {
@@ -87,30 +89,32 @@ module.exports = {
                 }
             })
         }
-        if (query.query.bool.must.length === 0){
-            alert("Tjek venligst mindst en søgemetode til.");
-            return false;
-        }
-
         return new Promise(function (resolve, reject) {
-            $.post(url, JSON.stringify(query), function (data) {
-                layerGroupAll.clearLayers();
-                let res = data.hits.hits.map((item) => {
-                    let it = item._source.properties;
-                    items[it.gid] = item._source;
-                    let geom = item._source.geometry;
-                    let layer = L.geoJson(geom, {
-                        "color": "grey",
-                        "weight": 1,
-                        "opacity": 1,
-                        "fillOpacity": 0.1,
-                        "dashArray": '5,3'
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: JSON.stringify(query),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    layerGroupAll.clearLayers();
+                    let res = data.hits.hits.map((item) => {
+                        let it = item._source.properties;
+                        items[it.gid] = item._source;
+                        let geom = item._source.geometry;
+                        let layer = L.geoJson(geom, {
+                            "color": "grey",
+                            "weight": 1,
+                            "opacity": 1,
+                            "fillOpacity": 0.1,
+                            "dashArray": '5,3'
+                        });
+                        layerGroupAll.addLayer(layer).addTo(mapObj);
+                        return {'title': it.links, 'id': it.gid};
                     });
-                    layerGroupAll.addLayer(layer).addTo(mapObj);
-                    return {'title': it.links, 'id': it.gid};
-                });
-                resolve(res);
-            }, 'json');
+                    resolve(res);
+                }
+            })
         });
     },
 
