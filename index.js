@@ -58,37 +58,40 @@ module.exports = {
             }
 
         };
-        currentSearchId = e ? e.target.id : currentSearchId;
-        if (currentSearchId === "tag-search") {
+
+        //currentSearchId = e ? e.target.id : currentSearchId;
+
+        if (searchTerm.tagValue !== "") {
             query.query.bool.must.push({
                 "match": {
                     "properties.tags": {
-                        "query": searchTerm,
+                        "query": searchTerm.tagValue,
                         "operator": "and"
                     }
                 }
             })
         }
-        if (currentSearchId === "text-search" ) {
+        if (searchTerm.textValue !== "") {
             query.query.bool.must.push({
                 "match": {
                     "properties.text": {
-                        "query": searchTerm,
+                        "query": searchTerm.textValue,
                         "operator": "and"
                     }
                 }
             })
         }
-        if (currentSearchId === "omraade-search") {
+        if (searchTerm.omraadeValue !== "") {
             query.query.bool.must.push({
                 "match": {
                     "properties.omraade": {
-                        "query": searchTerm,
+                        "query": searchTerm.omraadeValue,
                         "operator": "and"
                     }
                 }
             })
         }
+
         return new Promise(function (resolve, reject) {
             $.ajax({
                 url: url,
