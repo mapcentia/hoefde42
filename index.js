@@ -81,11 +81,21 @@ module.exports = {
                 }
             })
         }
-        if (searchTerm.omraadeValue !== "") {
+        if (searchTerm.omraadeValue !== "" && searchTerm.omraadeValue !== "Vælg område") {
             query.query.bool.must.push({
                 "match": {
                     "properties.omraade": {
                         "query": searchTerm.omraadeValue,
+                        "operator": "and"
+                    }
+                }
+            })
+        }
+        if (searchTerm.refValue !== "") {
+            query.query.bool.must.push({
+                "match": {
+                    "properties.reference": {
+                        "query": searchTerm.refValue,
                         "operator": "and"
                     }
                 }
