@@ -186,6 +186,10 @@ module.exports = {
             </div>;
             resolve(comp);
         });
+    },
+
+    clearBlue: function () {
+        layerGroupMouseOver.clearLayers();
     }
 };
 
